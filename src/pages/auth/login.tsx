@@ -33,8 +33,8 @@ const Login = () => {
     try {
       const data = await login(form);
 
-      if (data?.data?.id) {
-        window.localStorage.setItem("token", data.data.id);
+      if (data?.data?.token) {
+        window.localStorage.setItem("token", data.data.token);
         await validateSession();
         router.push("/tasks");
         setFormSubmitted(true);

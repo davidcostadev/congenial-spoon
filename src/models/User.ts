@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import omit from "lodash/omit";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-import { LoginInput, UserInput } from "types";
+import { LoginInput, UserInput, User } from "types";
 
 export const registerUser = async (data: UserInput) => {
   const user = await prisma.user.findUnique({
@@ -45,13 +46,33 @@ export const loginUser = async (data: LoginInput) => {
     throw new Error("Invalid email or/and password");
   }
 
-  return omit(user, ["password"]);
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET not set");
+  }
+
+  const userOmitted = omit(user, ["password"]);
+
+  const token = jwt.sign(userOmitted, process.env.JWT_SECRET);
+
+  return {
+    token,
+  };
 };
 
-export const getUser = async (id: string) => {
+export const getUser = async (token: string) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET not set");
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET) as User | undefined;
+
+  if (!decoded) {
+    throw new Error("Invalid token");
+  }
+
   const user = await prisma.user.findUnique({
     where: {
-      id,
+      id: decoded.id,
     },
   });
 

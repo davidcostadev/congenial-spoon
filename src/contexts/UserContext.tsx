@@ -23,10 +23,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
 
     const token = window.localStorage.getItem("token");
-
+    console.log(token);
     try {
       const { data } = await axios.post<AuthResponse>("/api/auth/session", { token });
-
+      console.log({ data });
       if (data?.data?.id) {
         setUser(data.data);
         setLoading(false);

@@ -1,15 +1,15 @@
 import axios, { AxiosError } from "axios";
 import { useState } from "react";
 
-import { UserInput, AuthResponse } from "types";
+import { LoginInput, AuthResponse } from "types";
 
-export const useAuthRegister = (): [{ loading: boolean }, (input: UserInput) => Promise<AuthResponse | undefined>] => {
+export const useAuthLogin = (): [{ loading: boolean }, (input: LoginInput) => Promise<AuthResponse | undefined>] => {
   const [loading, setLoading] = useState(false);
 
-  const mutation = async (input: UserInput) => {
+  const mutation = async (input: LoginInput) => {
     setLoading(true);
     try {
-      const { data } = await axios.post<AuthResponse>("/api/auth/register", input);
+      const { data } = await axios.post<AuthResponse>("/api/auth/login", input);
 
       setLoading(false);
       return data;

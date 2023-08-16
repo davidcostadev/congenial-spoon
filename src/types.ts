@@ -4,4 +4,6 @@ export type User = Omit<PrismaUser, "password">;
 
 export type UserInput = Pick<PrismaUser, "name" | "email" | "password">;
 
-export type RegisterResponse = { data: User };
+export type LoginInput = Pick<PrismaUser, "email" | "password">;
+
+export type AuthResponse = { data: User };

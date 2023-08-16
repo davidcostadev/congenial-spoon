@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import omit from "lodash/omit";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ import { LoginInput, UserInput } from "types";
 export const registerUser = async (data: UserInput) => {
   const user = await prisma.user.findUnique({
     where: {
-      email: data.email,
+      email: data.email.toLowerCase(),
     },
   });
 
@@ -16,11 +17,13 @@ export const registerUser = async (data: UserInput) => {
     throw new Error("User already exists");
   }
 
+  const hashedPassword = await bcrypt.hash(data.password, 10);
+
   const newEntity = await prisma.user.create({
     data: {
       name: data.name,
-      email: data.email,
-      password: data.password,
+      email: data.email.toLowerCase(),
+      password: hashedPassword,
     },
   });
 
@@ -31,11 +34,14 @@ export const loginUser = async (data: LoginInput) => {
   const user = await prisma.user.findUnique({
     where: {
       email: data.email,
-      password: data.password,
     },
   });
 
   if (!user) {
+    throw new Error("Invalid email or/and password");
+  }
+
+  if (!(await bcrypt.compare(data.password, user.password))) {
     throw new Error("Invalid email or/and password");
   }
 

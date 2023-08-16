@@ -15,6 +15,7 @@ const handler: NextApiHandler = async (req, res) => {
 
   try {
     const entity = await loginUser({ email, password });
+
     res.status(200).json({ data: entity });
   } catch (error) {
     console.error(error);

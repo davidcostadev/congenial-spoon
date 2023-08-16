@@ -72,7 +72,7 @@ const Login = () => {
           />
         </div>
         <div className="flex justify-between space-x-2 pt-10">
-          <Link href="/auth/login" className="text-blue-500 underline hover:text-blue-700">
+          <Link href="/auth/register" className="text-blue-500 underline hover:text-blue-700">
             Don{"'"}t have an account? Register
           </Link>
           <Button type="submit" disabled={loading || formSubmitted}>

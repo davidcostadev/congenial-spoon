@@ -41,3 +41,17 @@ export const loginUser = async (data: LoginInput) => {
 
   return omit(user, ["password"]);
 };
+
+export const getUser = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return omit(user, ["password"]);
+};

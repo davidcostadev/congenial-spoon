@@ -1,18 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
+import { useUserAuth } from "hooks/useUserAuth";
 import { useAuthLogin } from "services/auth";
 import { Input } from "components/Input";
 import { Button } from "components/Button";
 
 const Login = () => {
   const [{ loading }, login] = useAuthLogin();
+  const { validateSession, user } = useUserAuth();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.push("/tasks");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,6 +35,7 @@ const Login = () => {
 
       if (data?.data?.id) {
         window.localStorage.setItem("token", data.data.id);
+        await validateSession();
         router.push("/tasks");
         setFormSubmitted(true);
       } else {
@@ -44,7 +54,7 @@ const Login = () => {
   return (
     <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
       <form onSubmit={handleSubmit} className="space-y-2">
-        <div>
+        <div className="text-center">
           <h1 className="mb-8 text-3xl font-semibold text-gray-700 dark:text-gray-200">Login</h1>
         </div>
         <div className="space-y-2">
@@ -61,9 +71,12 @@ const Login = () => {
             disabled={loading}
           />
         </div>
-        <div className="flex justify-center pt-10">
+        <div className="flex justify-between space-x-2 pt-10">
+          <Link href="/auth/login" className="text-blue-500 underline hover:text-blue-700">
+            Don{"'"}t have an account? Register
+          </Link>
           <Button type="submit" disabled={loading || formSubmitted}>
-            {loading || formSubmitted ? "Loading..." : "Register"}
+            {loading || formSubmitted ? "Loading..." : "Login"}
           </Button>
         </div>
       </form>

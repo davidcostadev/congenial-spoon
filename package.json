@@ -11,6 +11,7 @@
     "checktypes": "yarn tsc --project tsconfig.json"
   },
   "dependencies": {
+    "@prisma/client": "5.1.1",
     "autoprefixer": "10.4.15",
     "next": "13.4.16",
     "postcss": "8.4.28",

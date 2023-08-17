@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Head from "next/head";
 
 import { useUserAuth } from "hooks/useUserAuth";
 import { useAuthRegister } from "services/auth";
@@ -52,6 +53,9 @@ const Register = () => {
 
   return (
     <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
+      <Head>
+        <title>Register</title>
+      </Head>
       <form onSubmit={handleSubmit} className="space-y-2">
         <div className="text-center">
           <h1 className="mb-8 text-3xl font-semibold text-gray-700 dark:text-gray-200">Register</h1>

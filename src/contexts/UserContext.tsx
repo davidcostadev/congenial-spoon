@@ -1,54 +1,72 @@
-import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import { createContext, useState, useEffect, useRef } from "react";
+import axios, { AxiosError } from "axios";
 
 import { AuthResponse, User } from "types";
 
 type UserContextType = {
   loading: boolean;
-  initialCheck: boolean;
+  hasValidated: boolean;
   user: User | null;
   validateSession: () => Promise<void>;
 };
 
 export const UserContext = createContext<UserContextType>({
-  initialCheck: false,
+  hasValidated: false,
   loading: false,
   user: null,
   validateSession: async () => {},
 });
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [initialCheck, setInitialCheck] = useState(false);
+  const [hasValidated, setHasValidated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const controller = useRef<AbortController | null>(null);
+
   const validateSession = async () => {
+    if (controller.current) {
+      controller.current.abort();
+    } else {
+      controller.current = new AbortController();
+    }
+
     setLoading(true);
 
     const token = window.localStorage.getItem("token");
 
     try {
-      const { data } = await axios.post<AuthResponse>("/api/auth/session", { token });
+      const { data } = await axios.post<AuthResponse>(
+        "/api/auth/session",
+        { token },
+        {
+          signal: controller.current.signal,
+        },
+      );
 
       if (data?.data?.id) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         setUser(data.data);
         setLoading(false);
-        setInitialCheck(true);
+        setHasValidated(true);
         return;
-      } else {
-        setLoading(false);
-        setUser(null);
-        window.localStorage.removeItem("token");
       }
+
+      window.localStorage.removeItem("token");
     } catch (error) {
-      console.error(error);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoading(false);
-      setUser(null);
-      setInitialCheck(true);
+      console.log("oi1");
+      if (error instanceof AxiosError) {
+        console.error(error.response?.data?.message);
+      }
+
+      // console.error(error);
     }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    setUser(null);
+    setLoading(false);
+    setHasValidated(true);
   };
 
   useEffect(() => {
@@ -56,7 +74,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ loading, user: user, validateSession, initialCheck }}>
+    <UserContext.Provider value={{ loading, user: user, validateSession, hasValidated }}>
       {children}
     </UserContext.Provider>
   );

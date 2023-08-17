@@ -1,4 +1,5 @@
 import { NextApiHandler } from "next";
+import { JsonWebTokenError } from "jsonwebtoken";
 
 import { getUser } from "models/User";
 
@@ -15,9 +16,13 @@ const handler: NextApiHandler = async (req, res) => {
 
   try {
     const entity = await getUser(userId);
+
     res.status(200).json({ data: entity });
   } catch (error) {
-    console.error(error);
+    if (error instanceof JsonWebTokenError) {
+      return res.status(403).json({ message: "Invalid token" });
+    }
+
     return res.status(500).json({ message: error instanceof Error ? error.message : "Something went wrong" });
   }
 };

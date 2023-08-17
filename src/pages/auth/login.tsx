@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Head from "next/head";
 
 import { useUserAuth } from "hooks/useUserAuth";
 import { useAuthLogin } from "services/auth";
@@ -10,19 +11,19 @@ import { Button } from "components/Button";
 const Login = () => {
   console.log("login");
   const [{ loading }, login] = useAuthLogin();
-  const { validateSession, user, loading: userLoading, initialCheck } = useUserAuth();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
-  const router = useRouter();
 
+  const { validateSession, user, hasValidated } = useUserAuth();
+  const router = useRouter();
   useEffect(() => {
-    if (user && !userLoading && initialCheck) {
+    if (hasValidated === true && user !== null) {
       router.push("/tasks");
     }
-  }, [user, userLoading, router, initialCheck]);
+  }, [user, hasValidated]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -52,16 +53,22 @@ const Login = () => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  if (!initialCheck && userLoading) {
+  if (!hasValidated) {
     return (
       <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
-        <h1>login loading...</h1>
+        <Head>
+          <title>Checking session on login...</title>
+        </Head>
+        <h1>Checking session on login...</h1>
       </div>
     );
   }
 
   return (
     <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
+      <Head>
+        <title>Login</title>
+      </Head>
       <form onSubmit={handleSubmit} className="space-y-2">
         <div className="text-center">
           <h1 className="mb-8 text-3xl font-semibold text-gray-700 dark:text-gray-200">Login</h1>

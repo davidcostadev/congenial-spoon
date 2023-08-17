@@ -6,19 +6,19 @@ import { useUserAuth } from "hooks/useUserAuth";
 const Tasks = () => {
   console.log("Tasks");
 
-  const { user, loading, initialCheck } = useUserAuth();
+  const { user, loading, hasValidated } = useUserAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user && initialCheck) {
+    if (hasValidated && user === null) {
       router.push("/auth/login");
     }
-  }, [user, loading, router, initialCheck]);
+  }, [hasValidated, user]);
 
-  if (loading || !user || !initialCheck) {
+  if (loading || !user || !hasValidated) {
     return (
       <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
-        <h1>Loading...</h1>
+        <h1>Checking session on tasks...</h1>
       </div>
     );
   }

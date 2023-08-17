@@ -1,16 +1,21 @@
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+
 import { useUserAuth } from "hooks/useUserAuth";
 
 const Tasks = () => {
-  const { user, loading } = useUserAuth();
+  console.log("Tasks");
 
-  if (!user && !loading)
-    return (
-      <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
-        <h1>User not logged</h1>
-      </div>
-    );
+  const { user, loading, initialCheck } = useUserAuth();
+  const router = useRouter();
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && !user && initialCheck) {
+      router.push("/auth/login");
+    }
+  }, [user, loading, router, initialCheck]);
+
+  if (loading || !user || !initialCheck) {
     return (
       <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
         <h1>Loading...</h1>

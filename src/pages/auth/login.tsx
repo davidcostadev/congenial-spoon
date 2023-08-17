@@ -8,8 +8,9 @@ import { Input } from "components/Input";
 import { Button } from "components/Button";
 
 const Login = () => {
+  console.log("login");
   const [{ loading }, login] = useAuthLogin();
-  const { validateSession, user } = useUserAuth();
+  const { validateSession, user, loading: userLoading, initialCheck } = useUserAuth();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [form, setForm] = useState({
     email: "",
@@ -18,10 +19,10 @@ const Login = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
+    if (user && !userLoading && initialCheck) {
       router.push("/tasks");
     }
-  }, [user, router]);
+  }, [user, userLoading, router, initialCheck]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,6 +51,14 @@ const Login = () => {
   const handleChange = (field: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
+
+  if (!initialCheck && userLoading) {
+    return (
+      <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
+        <h1>login loading...</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto mt-10 max-w-lg rounded-lg bg-slate-800 p-10">
